@@ -1,0 +1,112 @@
+=====================================================
+📖 PANDUAN INSTALASI & RUNNING POS DI LINUX (OFFLINE READY)
+=====================================================
+
+--- LANGKAH 1: INSTAL DEPENDENSI SISTEM & NODE.JS ---
+Buka Terminal Linux (Ctrl + Alt + T), lalu jalankan:
+
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y php-cli php-sqlite3 php-mbstring php-xml php-curl php-zip php-gd nodejs npm git unzip
+
+
+--- LANGKAH 2: PENYIAPAN PROJECT, ASSET & DATABASE ---
+
+1. Masuk ke folder project & buka di VS Code:
+   cd /path/ke/folder/pos-app
+   code .
+
+2. Buat file .env di dalam folder pos-app:
+   Pastikan databasenya di-set ke SQLite:
+   DB_CONNECTION=sqlite
+
+3. Generate Key Laravel:
+   php artisan key:generate
+
+4. Buat File Database SQLite:
+   touch database/database.sqlite
+
+5. BUILD ASET FRONTEND UNTUK MODE OFFLINE (Jalankan saat masih ada internet):
+   npm install
+   npm run build
+
+6. Atur Hak Akses Folder (Wajib di Linux!):
+   sudo chmod -R 775 storage bootstrap/cache database
+   sudo chmod 664 database/database.sqlite
+
+7. Jalankan Migration, Storage Link, & Seeder:
+   php artisan migrate --force
+   php artisan storage:link
+   php artisan db:seed
+
+
+--- LANGKAH 3: MENJALANKAN SERVER POS ---
+Jalankan perintah ini di Terminal Linux:
+
+php artisan serve --host=0.0.0.0 --port=8000
+
+Buka browser dan akses: http://localhost:8000 atau IP PC Linux (misal: http://192.168.1.50:8000).
+
+
+--- TIPS MAINTENANCE LINUX ---
+- Bersihkan cache tampilan/blade:
+  php artisan view:clear
+
+- Reset database dari awal:
+  php artisan migrate:fresh --seed
+
+
+
+=====================================================
+📖 PANDUAN INSTALASI & RUNNING POS DI WINDOWS (OFFLINE READY)
+=====================================================
+
+--- LANGKAH 1: PRASYARAT SOFTWARE (TANPA XAMPP) ---
+1. Install PHP versi 8.1+ & Node.js untuk Windows.
+2. Aktifkan Ekstensi SQLite di php.ini:
+   - Buka file php.ini di folder instalasi PHP kamu.
+   - Hapus tanda titik koma (;) pada baris:
+     extension=pdo_sqlite
+     extension=sqlite3
+   - Save file php.ini.
+
+
+--- LANGKAH 2: PENYIAPAN PROJECT, ASSET & DATABASE ---
+
+1. Buka folder pos-app di VS Code, lalu buka Terminal Integrated (Ctrl + ~).
+
+2. Buat file .env di root folder project:
+   Pastikan databasenya di-set ke SQLite:
+   DB_CONNECTION=sqlite
+
+3. Generate Key Laravel:
+   php artisan key:generate
+
+4. Buat File Database SQLite:
+   - Jika menggunakan Terminal PowerShell:
+     New-Item -Path "database\database.sqlite" -ItemType File
+   - Atau buat manual di VS Code: Klik kanan folder database -> New File -> beri nama database.sqlite
+
+5. BUILD ASET FRONTEND UNTUK MODE OFFLINE (Jalankan saat masih ada internet):
+   npm install
+   npm run build
+
+6. Jalankan Migration, Storage Link, & Seeder:
+   php artisan migrate --force
+   php artisan storage:link
+   php artisan db:seed
+
+
+--- LANGKAH 3: MENJALANKAN SERVER POS DI TOKO (SUSAH SINYAL / OFFLINE) ---
+Jalankan perintah ini di Terminal VS Code / CMD:
+
+php artisan serve --host=0.0.0.0 --port=8000
+
+Buka browser dan akses: http://127.0.0.1:8000 atau http://localhost:8000.
+
+
+--- TIPS MAINTENANCE WINDOWS ---
+- Bersihkan cache tampilan/blade:
+  php artisan view:clear
+
+- Reset database dari awal:
+  php artisan migrate:fresh --seed
