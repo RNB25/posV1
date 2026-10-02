@@ -17,6 +17,16 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 @endif
+@if($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <ul class="mb-0">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+@endif
 
 <div class="card">
     <div class="card-body p-0">
@@ -89,8 +99,8 @@
                                                     <input type="number" name="stock" class="form-control" value="{{ $product->stock }}" required>
                                                 </div>
                                                 <div class="mb-3">
-                                                    <label class="form-label">Gambar Merch (Opsional)</label>
-                                                    <input type="file" name="image" class="form-control" accept="image/*">
+                                                    <label class="form-label">Gambar Merch (JPG, PNG, WebP; maksimal 50 MB)</label>
+                                                    <input type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/webp">
                                                     @if($product->image)
                                                         <small class="text-muted d-block mt-1">Biarkan kosong jika tidak ingin mengubah gambar.</small>
                                                     @endif
@@ -144,8 +154,8 @@
                         <input type="number" name="stock" class="form-control" placeholder="10" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Gambar Merch</label>
-                        <input type="file" name="image" class="form-control" accept="image/*">
+                        <label class="form-label">Gambar Merch (JPG, PNG, WebP; maksimal 50 MB)</label>
+                        <input type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/webp">
                     </div>
                 </div>
                 <div class="modal-footer">
