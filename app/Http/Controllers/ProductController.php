@@ -20,7 +20,7 @@ class ProductController extends Controller
             'name'  => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:51200',
         ]);
 
         $data = $request->all();
@@ -40,7 +40,7 @@ class ProductController extends Controller
             'name'  => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:51200',
         ]);
 
         $data = $request->all();

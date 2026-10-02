@@ -1,112 +1,157 @@
-=====================================================
-📖 PANDUAN INSTALASI & RUNNING POS DI LINUX (OFFLINE READY)
-=====================================================
+PANDUAN MENYIAPKAN POS DI PERANGKAT BARU
+-----------------------------------------
 
---- LANGKAH 1: INSTAL DEPENDENSI SISTEM & NODE.JS ---
-Buka Terminal Linux (Ctrl + Alt + T), lalu jalankan:
+Ikuti bagian Windows atau Linux sesuai sistem operasi perangkat.
+Instalasi dependency awal membutuhkan internet. Setelah dependency dan aset
+selesai disiapkan, aplikasi dapat dijalankan secara lokal tanpa internet.
 
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y php-cli php-sqlite3 php-mbstring php-xml php-curl php-zip php-gd nodejs npm git unzip
+PERSYARATAN PROJECT
+-------------------
+- PHP CLI 8.4.1 atau lebih baru.
+- Ekstensi PHP: openssl, pdo_sqlite, sqlite3, gd, mbstring, xml, curl, dan zip.
+- Composer 2.
+- Node.js 22.12 atau lebih baru dan npm.
+- SQLite tidak memerlukan server MySQL maupun server XAMPP.
 
 
---- LANGKAH 2: PENYIAPAN PROJECT, ASSET & DATABASE ---
+WINDOWS
+-------
 
-1. Masuk ke folder project & buka di VS Code:
-   cd /path/ke/folder/pos-app
-   code .
+1. Instal PHP CLI 8.4.1+, Composer, dan Node.js 22.12+.
+   Jika menggunakan PHP Herd Lite/php.new dan `php -m` tidak menampilkan gd,
+   instal distribusi PHP Windows lengkap yang menyertakan folder `ext`:
 
-2. Buat file .env di dalam folder pos-app:
-   Pastikan databasenya di-set ke SQLite:
+   - Buka https://windows.php.net/download/.
+   - Unduh ZIP PHP 8.4.1+ atau 8.5, pilih NTS x64 VS17 untuk CLI.
+   - Ekstrak, misalnya, ke `C:\tools\php`.
+   - Salin `php.ini-development` menjadi `php.ini` di folder tersebut.
+   - Di `php.ini`, atur `extension_dir = "C:/tools/php/ext"` dan aktifkan
+     `extension=gd`, `extension=openssl`, `extension=pdo_sqlite`, serta
+     `extension=sqlite3` dengan menghapus tanda `;` di awal barisnya.
+   - Dahulukan `C:\tools\php` pada PATH Windows, lalu buka terminal baru.
+
+   Verifikasi dengan `where.exe php`, `php -v`, dan `php -m`. PHP yang pertama
+   harus versi 8.4.1+ dan daftar modul harus memuat `gd` serta `pdo_sqlite`.
+   Composer tidak dapat memasang dependency project ini tanpa ekstensi gd.
+
+2. Buka PowerShell di folder project. Pastikan PHP yang benar dipakai:
+
+   where.exe php
+   php -v
+   php --ini
+   php -m
+
+   Jika ada beberapa PHP, hasil pertama dari where.exe php yang dipakai.
+   Pastikan versinya 8.4.1+ dan php -m menampilkan gd serta pdo_sqlite.
+   Jika memakai Herd Lite, dahulukan PHP Herd pada terminal saat ini:
+
+   $env:Path = "$env:USERPROFILE\.config\herd-lite\bin;$env:Path"
+
+3. Buat .env dari contoh jika file tersebut belum ada:
+
+   if (!(Test-Path .env)) { Copy-Item .env.example .env }
+
+   Pastikan baris berikut ada di .env:
+
    DB_CONNECTION=sqlite
 
-3. Generate Key Laravel:
+4. Pasang dependency PHP:
+
+   composer install
+
+5. Buat database SQLite jika belum ada, lalu buat APP_KEY untuk perangkat ini:
+
+   if (!(Test-Path database\database.sqlite)) { New-Item database\database.sqlite -ItemType File }
    php artisan key:generate
 
-4. Buat File Database SQLite:
+6. Pasang dependency frontend dan build aset saat masih ada internet:
+
+   npm ci
+   npm run build
+
+7. Buat tabel database, akun demo, dan link penyimpanan:
+
+   php artisan migrate --seed
+   php artisan storage:link
+
+   Seeder membuat akun demo admin@pos.com dan kasir@pos.com, keduanya dengan
+   password password123. Ganti password setelah login dan jangan gunakan akun
+   demo pada server yang dapat diakses publik.
+
+8. Jalankan server:
+
+   php artisan serve --host=0.0.0.0 --port=8000
+
+   Buka http://127.0.0.1:8000 pada perangkat ini. Untuk akses dari perangkat
+   lain di jaringan lokal, gunakan IP komputer ini dan izinkan port 8000 pada
+   firewall Windows.
+
+
+LINUX (UBUNTU/DEBIAN)
+---------------------
+
+1. Instal PHP CLI, ekstensi PHP, Composer, Node.js, dan npm:
+
+   sudo apt update
+   sudo apt install -y php-cli php-sqlite3 php-mbstring php-xml php-curl php-zip php-gd composer nodejs npm unzip
+
+   Pastikan php -v menunjukkan PHP 8.4.1+ dan node --version menunjukkan
+   Node.js 22.12+. Jika repository distro memasang versi lebih lama, pasang
+   versi PHP/Node yang memenuhi persyaratan sebelum melanjutkan.
+
+2. Buka terminal pada folder project dan verifikasi PHP serta ekstensi:
+
+   php -v
+   php --ini
+   php -m
+   composer --version
+   node --version
+
+   Pastikan php -m menampilkan gd dan pdo_sqlite.
+
+3. Buat .env dari contoh jika file tersebut belum ada:
+
+   if [ ! -f .env ]; then cp .env.example .env; fi
+
+   Pastikan baris berikut ada di .env:
+
+   DB_CONNECTION=sqlite
+
+4. Pasang dependency PHP:
+
+   composer install
+
+5. Buat database SQLite jika belum ada, lalu buat APP_KEY untuk perangkat ini:
+
    touch database/database.sqlite
-
-5. BUILD ASET FRONTEND UNTUK MODE OFFLINE (Jalankan saat masih ada internet):
-   npm install
-   npm run build
-
-6. Atur Hak Akses Folder (Wajib di Linux!):
-   sudo chmod -R 775 storage bootstrap/cache database
-   sudo chmod 664 database/database.sqlite
-
-7. Jalankan Migration, Storage Link, & Seeder:
-   php artisan migrate --force
-   php artisan storage:link
-   php artisan db:seed
-
-
---- LANGKAH 3: MENJALANKAN SERVER POS ---
-Jalankan perintah ini di Terminal Linux:
-
-php artisan serve --host=0.0.0.0 --port=8000
-
-Buka browser dan akses: http://localhost:8000 atau IP PC Linux (misal: http://192.168.1.50:8000).
-
-
---- TIPS MAINTENANCE LINUX ---
-- Bersihkan cache tampilan/blade:
-  php artisan view:clear
-
-- Reset database dari awal:
-  php artisan migrate:fresh --seed
-
-
-
-=====================================================
-📖 PANDUAN INSTALASI & RUNNING POS DI WINDOWS (OFFLINE READY)
-=====================================================
-
---- LANGKAH 1: PRASYARAT SOFTWARE (TANPA XAMPP) ---
-1. Install PHP versi 8.1+ & Node.js untuk Windows.
-2. Aktifkan Ekstensi SQLite di php.ini:
-   - Buka file php.ini di folder instalasi PHP kamu.
-   - Hapus tanda titik koma (;) pada baris:
-     extension=pdo_sqlite
-     extension=sqlite3
-   - Save file php.ini.
-
-
---- LANGKAH 2: PENYIAPAN PROJECT, ASSET & DATABASE ---
-
-1. Buka folder pos-app di VS Code, lalu buka Terminal Integrated (Ctrl + ~).
-
-2. Buat file .env di root folder project:
-   Pastikan databasenya di-set ke SQLite:
-   DB_CONNECTION=sqlite
-
-3. Generate Key Laravel:
    php artisan key:generate
 
-4. Buat File Database SQLite:
-   - Jika menggunakan Terminal PowerShell:
-     New-Item -Path "database\database.sqlite" -ItemType File
-   - Atau buat manual di VS Code: Klik kanan folder database -> New File -> beri nama database.sqlite
+6. Pasang dependency frontend dan build aset saat masih ada internet:
 
-5. BUILD ASET FRONTEND UNTUK MODE OFFLINE (Jalankan saat masih ada internet):
-   npm install
+   npm ci
    npm run build
 
-6. Jalankan Migration, Storage Link, & Seeder:
-   php artisan migrate --force
+7. Buat tabel database, akun demo, dan link penyimpanan:
+
+   php artisan migrate --seed
    php artisan storage:link
-   php artisan db:seed
+
+   Seeder membuat akun demo admin@pos.com dan kasir@pos.com, keduanya dengan
+   password password123. Ganti password setelah login dan jangan gunakan akun
+   demo pada server yang dapat diakses publik.
+
+8. Jalankan server:
+
+   php artisan serve --host=0.0.0.0 --port=8000
+
+   Buka http://127.0.0.1:8000 pada perangkat ini. Untuk akses dari perangkat
+   lain di jaringan lokal, gunakan IP komputer ini dan atur firewall Linux
+   agar mengizinkan port 8000.
 
 
---- LANGKAH 3: MENJALANKAN SERVER POS DI TOKO (SUSAH SINYAL / OFFLINE) ---
-Jalankan perintah ini di Terminal VS Code / CMD:
-
-php artisan serve --host=0.0.0.0 --port=8000
-
-Buka browser dan akses: http://127.0.0.1:8000 atau http://localhost:8000.
-
-
---- TIPS MAINTENANCE WINDOWS ---
-- Bersihkan cache tampilan/blade:
-  php artisan view:clear
-
-- Reset database dari awal:
-  php artisan migrate:fresh --seed
+PERINTAH PEMELIHARAAN
+--------------------
+- Bersihkan cache Laravel: php artisan view:clear
+- Reset database dan isi ulang data demo: php artisan migrate:fresh --seed
+  Perintah reset menghapus seluruh data database; jangan jalankan pada database
+  toko yang berisi transaksi penting.
